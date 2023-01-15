@@ -1,0 +1,86 @@
+version: "3"
+services:
+  hub:
+    #build:
+    #  context: .
+    #  shm_size: '2gb'
+    image: selenium/hub:latest
+    ports:
+      - 4442:4442
+      - 4443:4443        
+      - 4444:4444
+  chrome:
+    build:
+      context: .
+      shm_size: '2gb'
+    image: selenium/node-chrome:latest
+    depends_on:
+      - hub
+    environment:
+      - SE_EVENT_BUS_HOST=hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+
+  firefox:
+    build:
+      context: .
+      shm_size: '1gb'
+    image: selenium/node-firefox:latest
+    depends_on:
+      - hub
+    environment:
+      - SE_EVENT_BUS_HOST=hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+
+  book-flight-module:
+    image: mikel126/selenium-docker
+    depends_on:
+      - chrome
+      - firefox
+    environment:
+      - MODULE=book-flight-module.xml
+      #- HUB_HOST=192.168.1.92
+      - HUB_HOST=hub
+      - BROWSER=firefox
+    volumes:
+      - ./book-result:/usr/share/udemy/test-output
+
+  book-flight-module2:
+    image: mikel126/selenium-docker
+    depends_on:
+      - chrome
+      - firefox
+    environment:
+      - MODULE=book-flight-module.xml
+      #- HUB_HOST=192.168.1.92
+      - HUB_HOST=hub
+      - BROWSER=chrome
+    volumes:
+      - ./book-result2:/usr/share/udemy/test-output
+
+  search-module:
+    image: mikel126/selenium-docker
+    depends_on:
+      - chrome
+      - firefox
+    environment:
+      - MODULE=search-module.xml
+      #- HUB_HOST=192.168.1.92
+      - HUB_HOST=hub
+      - BROWSER=firefox
+    volumes:
+      - ./search-result:/usr/share/udemy/test-output
+  search-module2:
+    image: mikel126/selenium-docker
+    depends_on:
+      - chrome
+      - firefox
+    environment:
+      - MODULE=search-module.xml
+      #- HUB_HOST=192.168.1.92
+      - HUB_HOST=hub
+      - BROWSER=chrome
+    volumes:
+      - ./search-result2:/usr/share/udemy/test-output
+
